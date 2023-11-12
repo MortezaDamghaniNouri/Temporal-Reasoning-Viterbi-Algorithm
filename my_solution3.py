@@ -4,7 +4,7 @@
 
 
 
-
+# This function reads information from state_weights.txt
 def states_weights_file_reader():
     initial_states_file = open("state_weights.txt", "rt")
     lines = []
@@ -35,9 +35,69 @@ def states_weights_file_reader():
     return output
 
 
+# This function reads information from state_action_state_weights.txt
+def states_action_states_weights_file_reader():
+    states_action_states_file = open("state_action_state_weights.txt", "rt")
+    lines = []
+    while True:
+        line = states_action_states_file.readline()
+        if line == "":
+            break
+        lines.append(line.rstrip("\n"))
+    states_action_states_file.close()
+    line_one_elements = lines[1].split(" ")
+    default_weight = int(line_one_elements[3])
+    output = []
+    sum_of_weights = default_weight
+    i = 2
+    while i < len(lines):
+        temp_list = lines[i].split(" ")
+        output.append([temp_list[0].strip("\""), temp_list[1].strip("\""), temp_list[2].strip("\""), int(temp_list[3])])
+        sum_of_weights += int(temp_list[3])
+        i += 1
+
+    n = len(output)
+    default_weight = default_weight / sum_of_weights
+    # normalizing the probabilities
+    probabilities = []
+    i = 0
+    while i < len(output):
+        current_line = output[i]
+        down = 0
+        j = 0
+        while j < len(output):
+            if output[j][0] == current_line[0] and output[j][1] == current_line[1]:
+                down += output[j][3]
+            j += 1
+
+        probabilities.append(current_line[3] / down)
+        i += 1
+
+    i = 0
+    while i < len(output):
+        output[i][3] = probabilities[i]
+        i += 1
+
+    return default_weight, output
+
+
+
+
+
+
+
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
 
+
+
+
+
+
+
+
+
+# states_action_states_and_probabilities = states_action_states_weights_file_reader()
 
 
 
