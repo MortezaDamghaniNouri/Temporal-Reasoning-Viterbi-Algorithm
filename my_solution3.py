@@ -124,9 +124,28 @@ def states_observation_weights_file_reader():
     return default_weight, output
 
 
-
-
-
+# This function reads information from observation_actions.txt
+def observation_actions_file_reader():
+    observations_actions_file = open("observation_actions", "rt")
+    lines = []
+    while True:
+        line = observations_actions_file.readline()
+        if line == "":
+            break
+        lines.append(line.rstrip("\n"))
+    observations_actions_file.close()
+    output = []
+    i = 2
+    while i < len(lines):
+        temp_list = lines[i].split(" ")
+        new_list = []
+        j = 0
+        while j < len(temp_list):
+            new_list.append(temp_list[j].strip("\""))
+            j += 1
+        output.append(new_list)
+        i += 1
+    return output
 
 
 # main part of the code starts here
@@ -134,15 +153,11 @@ initial_states_and_probabilities = states_weights_file_reader()
 states_action_states_default_weight, states_action_states_and_probabilities = states_action_states_weights_file_reader()
 states_observations_default_weight, states_observations_and_probabilities = states_observation_weights_file_reader()
 
-print("default weight = " + str(states_observations_default_weight))
-print("len: " + str(len(states_observations_and_probabilities)))
-i = 0
-while i < len(states_observations_and_probabilities):
-    print(states_observations_and_probabilities[i])
-    i += 1
 
 
-print(states_action_states_default_weight)
+
+
+
 
 
 
