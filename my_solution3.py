@@ -56,7 +56,6 @@ def states_action_states_weights_file_reader():
         sum_of_weights += int(temp_list[3])
         i += 1
 
-    n = len(output)
     default_weight = default_weight / sum_of_weights
     # normalizing the probabilities
     probabilities = []
@@ -88,8 +87,11 @@ def states_action_states_weights_file_reader():
 
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
+states_action_states_default_weight, states_action_states_and_probabilities = states_action_states_weights_file_reader()
 
 
+
+print(states_action_states_and_probabilities[14])
 
 
 
