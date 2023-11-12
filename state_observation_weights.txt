@@ -1,0 +1,11 @@
+state_observation_weights
+9 3 3 0
+"S0" "Volcano" 3
+"S0" "Grass" 3
+"S0" "Apple" 2
+"S1" "Volcano" 5
+"S1" "Grass" 5
+"S1" "Apple" 2
+"S2" "Volcano" 3
+"S2" "Grass" 5
+"S2" "Apple" 2
