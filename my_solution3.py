@@ -12,7 +12,7 @@ def states_weights_file_reader():
         line = initial_states_file.readline()
         if line == "":
             break
-        lines.append(line)
+        lines.append(line.rstrip("\n"))
     initial_states_file.close()
     output = []
     i = 2
@@ -37,6 +37,7 @@ def states_weights_file_reader():
 
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
+
 
 
 
