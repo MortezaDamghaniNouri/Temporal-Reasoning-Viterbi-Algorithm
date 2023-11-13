@@ -126,7 +126,7 @@ def states_observation_weights_file_reader():
 
 # This function reads information from observation_actions.txt
 def observation_actions_file_reader():
-    observations_actions_file = open("observation_actions", "rt")
+    observations_actions_file = open("observation_actions.txt", "rt")
     lines = []
     while True:
         line = observations_actions_file.readline()
@@ -152,16 +152,9 @@ def observation_actions_file_reader():
 initial_states_and_probabilities = states_weights_file_reader()
 states_action_states_default_weight, states_action_states_and_probabilities = states_action_states_weights_file_reader()
 states_observations_default_weight, states_observations_and_probabilities = states_observation_weights_file_reader()
+observations_actions_pairs = observation_actions_file_reader()
 
 
-
-
-
-
-
-
-
-# states_action_states_and_probabilities = states_action_states_weights_file_reader()
 
 
 
