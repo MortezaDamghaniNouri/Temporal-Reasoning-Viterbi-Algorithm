@@ -198,7 +198,6 @@ while i < len(observations_actions_pairs):
     states_final_probs = []
     j = 0
     while j < len(initial_states_and_probabilities):
-        temp_list = []
         current_state_element = initial_states_and_probabilities[j][0]
         state_action_state_exist = False
         k = 0
@@ -243,7 +242,7 @@ while i < len(observations_actions_pairs):
 
 
 
-
+print(states)
 
 
 
