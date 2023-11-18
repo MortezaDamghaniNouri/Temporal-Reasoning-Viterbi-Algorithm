@@ -1,9 +1,3 @@
-
-
-
-
-
-
 # This function reads information from state_weights.txt
 def states_weights_file_reader():
     initial_states_file = open("state_weights.txt", "rt")
