@@ -148,6 +148,18 @@ def observation_actions_file_reader():
     return output
 
 
+# This function generates the output file
+def output_file_generator(input_states):
+    output_file = open("states.txt", "wt")
+    output_file.write("states\n")
+    output_file.write(str(len(input_states)) + "\n")
+    i = 0
+    while i < len(input_states):
+        output_file.write("\"" + input_states[i] + "\"" + "\n")
+        i += 1
+    output_file.close()
+
+
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
 states_action_states_default_weight, states_action_states_and_probabilities = states_action_states_weights_file_reader()
@@ -240,38 +252,7 @@ while i < len(observations_actions_pairs):
 
     i += 1
 
-
-
-print(states)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+output_file_generator(states)
 
 
 
