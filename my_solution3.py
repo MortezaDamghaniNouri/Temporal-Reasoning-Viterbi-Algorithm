@@ -154,11 +154,6 @@ states_action_states_default_weight, states_action_states_and_probabilities = st
 states_observations_default_weight, states_observations_and_probabilities = states_observation_weights_file_reader()
 observations_actions_pairs = observation_actions_file_reader()
 
-
-print(states_observations_and_probabilities)
-
-
-
 # Viterbi algorithm is implemented here
 states = []
 first_state_probabilities = []
@@ -177,14 +172,13 @@ while i < len(initial_states_and_probabilities):
 
     if not observation_exist:
         alpha = initial_states_and_probabilities[i][1] * states_observations_default_weight
-
     first_state_probabilities.append([current_state, alpha])
     i += 1
 
 prob_list = []
 i = 0
 while i < len(first_state_probabilities):
-    prob_list.append(first_state_probabilities[1])
+    prob_list.append(first_state_probabilities[i][1])
     i += 1
 maximum = max(prob_list)
 alpha = 0
@@ -195,27 +189,12 @@ while i < len(first_state_probabilities):
         states.append(first_state_probabilities[i][0])
     i += 1
 
+print(states)
+print(alpha)
 
 
 
 
-
-
-i = 0
-while i < len(initial_states_and_probabilities):
-
-
-
-
-
-
-
-
-
-
-
-
-    i += 1
 
 
 
