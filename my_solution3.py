@@ -187,10 +187,59 @@ while i < len(first_state_probabilities):
     if first_state_probabilities[i][1] == maximum:
         alpha = maximum
         states.append(first_state_probabilities[i][0])
+        break
     i += 1
 
-print(states)
-print(alpha)
+i = 1
+while i < len(observations_actions_pairs):
+    last_state = states[(len(states) - 1)]
+    current_action = observations_actions_pairs[i - 1][1]
+    current_observation = observations_actions_pairs[i][0]
+    states_final_probs = []
+    j = 0
+    while j < len(initial_states_and_probabilities):
+        temp_list = []
+        current_state_element = initial_states_and_probabilities[j][0]
+        state_action_state_exist = False
+        k = 0
+        while k < len(states_action_states_and_probabilities):
+            if states_action_states_and_probabilities[k][0] == last_state and states_action_states_and_probabilities[k][1] == current_action and states_action_states_and_probabilities[k][2] == current_state_element:
+                state_action_state_exist = True
+                temp_alpha = alpha * states_action_states_and_probabilities[k][3]
+                break
+            k += 1
+        if not state_action_state_exist:
+            temp_alpha = alpha * states_action_states_default_weight
+
+        observation_exist = False
+        k = 0
+        while k < len(states_observations_and_probabilities):
+            if states_observations_and_probabilities[k][0] == current_state_element and states_observations_and_probabilities[k][1] == current_observation:
+                observation_exist = True
+                temp_alpha = temp_alpha * states_observations_and_probabilities[k][2]
+                break
+            k += 1
+        if not observation_exist:
+            temp_alpha = temp_alpha * states_observations_default_weight
+
+        states_final_probs.append([current_state_element, temp_alpha])
+        j += 1
+
+    prob_list = []
+    j = 0
+    while j < len(states_final_probs):
+        prob_list.append(states_final_probs[j][1])
+        j += 1
+    maximum = max(prob_list)
+    j = 0
+    while j < len(states_final_probs):
+        if states_final_probs[j][1] == maximum:
+            alpha = maximum
+            states.append(states_final_probs[j][0])
+            break
+        j += 1
+
+    i += 1
 
 
 
