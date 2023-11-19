@@ -10,22 +10,16 @@ def states_weights_file_reader():
         lines.append(line.rstrip("\n"))
     initial_states_file.close()
     output = []
+    sum_of_weights = 0
     i = 2
     while i < len(lines):
         temp_list = lines[i].split(" ")
         output.append([temp_list[0].strip("\""), int(temp_list[1])])
+        sum_of_weights += int(temp_list[1])
         i += 1
-
-    sum_of_weights = 0
-    i = 0
-    while i < len(output):
-        sum_of_weights += output[i][1]
-        i += 1
-
     i = 0
     while i < len(output):
         output[i][1] = output[i][1] / sum_of_weights
-
         i += 1
 
     return output
@@ -59,7 +53,7 @@ def states_action_states_weights_file_reader():
     while i <= number_of_triples:
         probabilities.append(-1)
         i += 1
-
+    output_dictionary = {}
     i = 0
     while i < len(output):
         if probabilities[i] == -1:
@@ -72,7 +66,7 @@ def states_action_states_weights_file_reader():
                     down += output[j][3]
                     list_of_js.append(j)
                 j += 1
-
+            output_dictionary[current_line[0] + current_line[1]] = list_of_js
             k = 0
             while k < len(list_of_js):
                 s = list_of_js[k]
@@ -86,7 +80,7 @@ def states_action_states_weights_file_reader():
         output[i][3] = probabilities[i]
         i += 1
 
-    return default_weight, output
+    return default_weight, output, output_dictionary
 
 
 # This function reads information from states_observation_weights.txt
@@ -171,15 +165,9 @@ def output_file_generator(input_states):
 
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
-states_action_states_default_weight, states_action_states_and_probabilities = states_action_states_weights_file_reader()
+states_action_states_default_weight, states_action_states_and_probabilities, states_action_dictionary = states_action_states_weights_file_reader()
 states_observations_default_weight, states_observations_and_probabilities = states_observation_weights_file_reader()
 observations_actions_pairs = observation_actions_file_reader()
-
-
-
-print("now running viterbi algorithm...")
-
-
 
 # Viterbi algorithm is implemented here
 alphas_list = []
@@ -210,7 +198,6 @@ while i < len(first_state_probabilities):
 previous_probabilities_list = first_state_probabilities
 i = 1
 while i < len(observations_actions_pairs):
-    print("now inside")
     current_action = observations_actions_pairs[i - 1][1]
     current_observation = observations_actions_pairs[i][0]
     alphas_list_copy = copy.deepcopy(alphas_list)
@@ -228,26 +215,27 @@ while i < len(observations_actions_pairs):
         if not observation_exist:
             theta = states_observations_default_weight
 
-        print("Before this part")
         temp_list = []
         k = 0
         while k < len(previous_probabilities_list):
             previous_state = previous_probabilities_list[k][0]
             state_action_exist = False
-            h = 0
-            while h < len(states_action_states_and_probabilities):
+            list_of_indexes = states_action_dictionary[previous_state + current_action]
+            s = 0
+            while s < len(list_of_indexes):
+                h = list_of_indexes[s]
                 if states_action_states_and_probabilities[h][0] == previous_state and states_action_states_and_probabilities[h][2] == current_state and states_action_states_and_probabilities[h][1] == current_action:
                     state_action_exist = True
                     action_probability = states_action_states_and_probabilities[h][3]
                     break
-                h += 1
+                s += 1
+
             if not state_action_exist:
                 action_probability = states_action_states_default_weight
 
             current_alpha = previous_probabilities_list[k][1] * action_probability * theta
             temp_list.append([previous_probabilities_list[k][0], current_alpha])
             k += 1
-        print("after this part")
         probs = []
         k = 0
         while k < len(temp_list):
@@ -275,15 +263,12 @@ while i < len(observations_actions_pairs):
                     alphas_list[j][2].append(chosen_state)
                     break
                 k += 1
-        print("This is J: " + str(j))
         j += 1
 
     j = 0
     while j < len(previous_probabilities_list):
         previous_probabilities_list[j][1] = alphas_list[j][1]
         j += 1
-
-    print(i)
 
     i += 1
 
