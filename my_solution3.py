@@ -215,6 +215,11 @@ while i < len(first_state_probabilities):
         break
     i += 1
 
+print("first_states probabilities: " + str(first_state_probabilities))
+
+
+
+
 i = 1
 while i < len(observations_actions_pairs):
     last_state = states[(len(states) - 1)]
@@ -279,6 +284,19 @@ output_file_generator(states)
 print(states_action_states_and_probabilities)
 
 print(states_observations_and_probabilities)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
