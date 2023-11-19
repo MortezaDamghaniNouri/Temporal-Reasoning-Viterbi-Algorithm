@@ -24,6 +24,7 @@ def states_weights_file_reader():
     i = 0
     while i < len(output):
         output[i][1] = output[i][1] / sum_of_weights
+
         i += 1
 
     return output
@@ -39,6 +40,9 @@ def states_action_states_weights_file_reader():
             break
         lines.append(line.rstrip("\n"))
     states_action_states_file.close()
+
+    print("states_actions_states file is read")
+
     line_one_elements = lines[1].split(" ")
     default_weight = int(line_one_elements[3])
     output = []
@@ -48,8 +52,9 @@ def states_action_states_weights_file_reader():
         temp_list = lines[i].split(" ")
         output.append([temp_list[0].strip("\""), temp_list[1].strip("\""), temp_list[2].strip("\""), int(temp_list[3])])
         sum_of_weights += int(temp_list[3])
+        print(i)
         i += 1
-
+    print("the file is parsed and normalization started")
     default_weight = default_weight / sum_of_weights
     # normalizing the probabilities
     probabilities = []
@@ -64,6 +69,7 @@ def states_action_states_weights_file_reader():
             j += 1
 
         probabilities.append(current_line[3] / down)
+        print(i)
         i += 1
 
     i = 0
@@ -156,9 +162,22 @@ def output_file_generator(input_states):
 
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
+print("initial states are read")
 states_action_states_default_weight, states_action_states_and_probabilities = states_action_states_weights_file_reader()
+print("states action states are read")
 states_observations_default_weight, states_observations_and_probabilities = states_observation_weights_file_reader()
+print("states observations are read")
 observations_actions_pairs = observation_actions_file_reader()
+print("observation actions are read")
+
+
+
+
+print("Executing Viterbi algorithm...")
+
+
+
+
 
 # Viterbi algorithm is implemented here
 states = []
@@ -241,15 +260,25 @@ while i < len(observations_actions_pairs):
         if states_final_probs[j][1] == maximum:
             alpha = maximum
             states.append(states_final_probs[j][0])
+            print("chosen alpha: " + str(alpha))
+            print("chosen state: " + str(states_final_probs[j][0]))
+
+
             break
         j += 1
+    print("states final_probs: " + str(states_final_probs))
+    print("================================================================")
+
+
 
     i += 1
 
 output_file_generator(states)
 
 
+print(states_action_states_and_probabilities)
 
+print(states_observations_and_probabilities)
 
 
 
