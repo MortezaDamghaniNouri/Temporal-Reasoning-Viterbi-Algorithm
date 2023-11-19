@@ -81,7 +81,6 @@ def states_action_states_weights_file_reader():
 
         i += 1
 
-    print(probabilities)
     i = 0
     while i < len(output):
         output[i][3] = probabilities[i]
@@ -211,6 +210,7 @@ while i < len(first_state_probabilities):
 previous_probabilities_list = first_state_probabilities
 i = 1
 while i < len(observations_actions_pairs):
+    print("now inside")
     current_action = observations_actions_pairs[i - 1][1]
     current_observation = observations_actions_pairs[i][0]
     alphas_list_copy = copy.deepcopy(alphas_list)
@@ -228,6 +228,7 @@ while i < len(observations_actions_pairs):
         if not observation_exist:
             theta = states_observations_default_weight
 
+        print("Before this part")
         temp_list = []
         k = 0
         while k < len(previous_probabilities_list):
@@ -246,7 +247,7 @@ while i < len(observations_actions_pairs):
             current_alpha = previous_probabilities_list[k][1] * action_probability * theta
             temp_list.append([previous_probabilities_list[k][0], current_alpha])
             k += 1
-
+        print("after this part")
         probs = []
         k = 0
         while k < len(temp_list):
@@ -274,13 +275,15 @@ while i < len(observations_actions_pairs):
                     alphas_list[j][2].append(chosen_state)
                     break
                 k += 1
-
+        print("This is J: " + str(j))
         j += 1
 
     j = 0
     while j < len(previous_probabilities_list):
         previous_probabilities_list[j][1] = alphas_list[j][1]
         j += 1
+
+    print(i)
 
     i += 1
 
