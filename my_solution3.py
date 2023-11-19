@@ -234,6 +234,7 @@ while i < len(observations_actions_pairs):
             theta = states_observations_default_weight
 
         temp_list = []
+        probs = []
         k = 0
         while k < len(previous_probabilities_list):
             previous_state = previous_probabilities_list[k][0]
@@ -253,14 +254,10 @@ while i < len(observations_actions_pairs):
 
             current_alpha = previous_probabilities_list[k][1] * action_probability * theta
             temp_list.append([previous_probabilities_list[k][0], current_alpha])
+            probs.append(current_alpha)
             k += 1
-        probs = []
-        k = 0
-        while k < len(temp_list):
-            probs.append(temp_list[k][1])
-            k += 1
-        maximum = max(probs)
 
+        maximum = max(probs)
         if i == 1:
             k = 0
             while k < len(temp_list):
