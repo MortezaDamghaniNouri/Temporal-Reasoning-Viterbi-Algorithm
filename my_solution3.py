@@ -95,6 +95,7 @@ def states_observation_weights_file_reader():
     states_observations_file.close()
     line_one_elements = lines[1].split(" ")
     default_weight = int(line_one_elements[3])
+    number_of_pairs = int(line_one_elements[0])
     output = []
     sum_of_weights = default_weight
     i = 2
@@ -107,16 +108,32 @@ def states_observation_weights_file_reader():
     default_weight = default_weight / sum_of_weights
     # normalizing the probabilities
     probabilities = []
+    i = 1
+    while i <= number_of_pairs:
+        probabilities.append(-1)
+        i += 1
+
+    output_dictionary = {}
     i = 0
     while i < len(output):
-        current_line = output[i]
-        down = 0
-        j = 0
-        while j < len(output):
-            if output[j][0] == current_line[0]:
-                down += output[j][2]
-            j += 1
-        probabilities.append(current_line[2] / down)
+        if probabilities[i] == -1:
+            current_line = output[i]
+            down = 0
+            j = 0
+            list_of_js = []
+            while j < len(output):
+                if output[j][0] == current_line[0]:
+                    down += output[j][2]
+                    list_of_js.append(j)
+                j += 1
+
+            output_dictionary[current_line[0]] = list_of_js
+            k = 0
+            while k < len(list_of_js):
+                s = list_of_js[k]
+                probabilities[s] = output[s][2] / down
+                k += 1
+
         i += 1
 
     i = 0
@@ -124,7 +141,7 @@ def states_observation_weights_file_reader():
         output[i][2] = probabilities[i]
         i += 1
 
-    return default_weight, output
+    return default_weight, output, output_dictionary
 
 
 # This function reads information from observation_actions.txt
@@ -166,7 +183,7 @@ def output_file_generator(input_states):
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
 states_action_states_default_weight, states_action_states_and_probabilities, states_action_dictionary = states_action_states_weights_file_reader()
-states_observations_default_weight, states_observations_and_probabilities = states_observation_weights_file_reader()
+states_observations_default_weight, states_observations_and_probabilities, states_observations_dictionary = states_observation_weights_file_reader()
 observations_actions_pairs = observation_actions_file_reader()
 
 # Viterbi algorithm is implemented here
@@ -177,22 +194,20 @@ i = 0
 while i < len(initial_states_and_probabilities):
     current_state = initial_states_and_probabilities[i][0]
     observation_exist = False
-    j = 0
-    while j < len(states_observations_and_probabilities):
+
+    list_of_indexes = states_observations_dictionary[current_state]
+    h = 0
+    while h < len(list_of_indexes):
+        j = list_of_indexes[h]
         if states_observations_and_probabilities[j][0] == current_state and states_observations_and_probabilities[j][1] == first_observation:
             observation_exist = True
             alpha = initial_states_and_probabilities[i][1] * states_observations_and_probabilities[j][2]
             break
-        j += 1
-
+        h += 1
     if not observation_exist:
         alpha = initial_states_and_probabilities[i][1] * states_observations_default_weight
     first_state_probabilities.append([current_state, alpha])
-    i += 1
-
-i = 0
-while i < len(first_state_probabilities):
-    alphas_list.append([first_state_probabilities[i][0], first_state_probabilities[i][1], []])
+    alphas_list.append([current_state, alpha, []])
     i += 1
 
 previous_probabilities_list = first_state_probabilities
@@ -205,13 +220,16 @@ while i < len(observations_actions_pairs):
     while j < len(initial_states_and_probabilities):
         current_state = initial_states_and_probabilities[j][0]
         observation_exist = False
-        k = 0
-        while k < len(states_observations_and_probabilities):
+        list_of_observations_indexes = states_observations_dictionary[current_state]
+        t = 0
+        while t < len(list_of_observations_indexes):
+            k = list_of_observations_indexes[t]
             if states_observations_and_probabilities[k][0] == current_state and states_observations_and_probabilities[k][1] == current_observation:
                 observation_exist = True
                 theta = states_observations_and_probabilities[k][2]
                 break
-            k += 1
+            t += 1
+
         if not observation_exist:
             theta = states_observations_default_weight
 
