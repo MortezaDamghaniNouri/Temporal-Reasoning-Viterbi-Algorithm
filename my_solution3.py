@@ -41,9 +41,6 @@ def states_action_states_weights_file_reader():
             break
         lines.append(line.rstrip("\n"))
     states_action_states_file.close()
-
-    print("states_actions_states file is read")
-
     line_one_elements = lines[1].split(" ")
     default_weight = int(line_one_elements[3])
     output = []
@@ -54,7 +51,6 @@ def states_action_states_weights_file_reader():
         output.append([temp_list[0].strip("\""), temp_list[1].strip("\""), temp_list[2].strip("\""), int(temp_list[3])])
         sum_of_weights += int(temp_list[3])
         i += 1
-    print("the file is parsed and normalization started")
     default_weight = default_weight / sum_of_weights
     # normalizing the probabilities
     probabilities = []
@@ -161,22 +157,9 @@ def output_file_generator(input_states):
 
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
-
 states_action_states_default_weight, states_action_states_and_probabilities = states_action_states_weights_file_reader()
-
 states_observations_default_weight, states_observations_and_probabilities = states_observation_weights_file_reader()
-
 observations_actions_pairs = observation_actions_file_reader()
-
-
-
-
-
-
-
-
-
-
 
 # Viterbi algorithm is implemented here
 alphas_list = []
@@ -199,22 +182,14 @@ while i < len(initial_states_and_probabilities):
     first_state_probabilities.append([current_state, alpha])
     i += 1
 
-
 i = 0
 while i < len(first_state_probabilities):
     alphas_list.append([first_state_probabilities[i][0], first_state_probabilities[i][1], []])
     i += 1
 
-
-
-
 previous_probabilities_list = first_state_probabilities
-
-
-
 i = 1
 while i < len(observations_actions_pairs):
-    # print("previous_probabilities_list: " + str(previous_probabilities_list))
     current_action = observations_actions_pairs[i - 1][1]
     current_observation = observations_actions_pairs[i][0]
     alphas_list_copy = copy.deepcopy(alphas_list)
@@ -279,23 +254,14 @@ while i < len(observations_actions_pairs):
                     break
                 k += 1
 
-
-
-
-
-
         j += 1
 
     j = 0
     while j < len(previous_probabilities_list):
         previous_probabilities_list[j][1] = alphas_list[j][1]
         j += 1
-    print(i)
-    print("alphas_list: " + str(alphas_list))
-    print("=====================================================")
 
     i += 1
-
 
 probs = []
 i = 0
@@ -307,17 +273,10 @@ i = 0
 while i < len(alphas_list):
     if alphas_list[i][1] == maximum:
         alphas_list[i][2].append(alphas_list[i][0])
-        # print(alphas_list[i])
         output_file_generator(alphas_list[i][2])
         break
     i += 1
-print("======================\n\n")
-print("alpha_list: " + str(alphas_list))
-print("=============================")
 
-print(states_action_states_and_probabilities)
-print("==================")
-print(states_observations_and_probabilities)
 
 
 
