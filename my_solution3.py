@@ -43,6 +43,7 @@ def states_action_states_weights_file_reader():
     states_action_states_file.close()
     line_one_elements = lines[1].split(" ")
     default_weight = int(line_one_elements[3])
+    number_of_triples = int(line_one_elements[0])
     output = []
     sum_of_weights = default_weight
     i = 2
@@ -54,19 +55,33 @@ def states_action_states_weights_file_reader():
     default_weight = default_weight / sum_of_weights
     # normalizing the probabilities
     probabilities = []
-    i = 0
-    while i < len(output):
-        current_line = output[i]
-        down = 0
-        j = 0
-        while j < len(output):
-            if output[j][0] == current_line[0] and output[j][1] == current_line[1]:
-                down += output[j][3]
-            j += 1
-
-        probabilities.append(current_line[3] / down)
+    i = 1
+    while i <= number_of_triples:
+        probabilities.append(-1)
         i += 1
 
+    i = 0
+    while i < len(output):
+        if probabilities[i] == -1:
+            current_line = output[i]
+            down = 0
+            j = 0
+            list_of_js = []
+            while j < len(output):
+                if output[j][0] == current_line[0] and output[j][1] == current_line[1]:
+                    down += output[j][3]
+                    list_of_js.append(j)
+                j += 1
+
+            k = 0
+            while k < len(list_of_js):
+                s = list_of_js[k]
+                probabilities[s] = output[s][3] / down
+                k += 1
+
+        i += 1
+
+    print(probabilities)
     i = 0
     while i < len(output):
         output[i][3] = probabilities[i]
@@ -161,6 +176,12 @@ states_action_states_default_weight, states_action_states_and_probabilities = st
 states_observations_default_weight, states_observations_and_probabilities = states_observation_weights_file_reader()
 observations_actions_pairs = observation_actions_file_reader()
 
+
+
+print("now running viterbi algorithm...")
+
+
+
 # Viterbi algorithm is implemented here
 alphas_list = []
 first_state_probabilities = []
@@ -214,7 +235,7 @@ while i < len(observations_actions_pairs):
             state_action_exist = False
             h = 0
             while h < len(states_action_states_and_probabilities):
-                if states_action_states_and_probabilities[h][0] == previous_state and states_action_states_and_probabilities[h][1] == current_action and states_action_states_and_probabilities[h][2] == current_state:
+                if states_action_states_and_probabilities[h][0] == previous_state and states_action_states_and_probabilities[h][2] == current_state and states_action_states_and_probabilities[h][1] == current_action:
                     state_action_exist = True
                     action_probability = states_action_states_and_probabilities[h][3]
                     break
