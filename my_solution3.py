@@ -1,3 +1,4 @@
+import copy
 # This function reads information from state_weights.txt
 def states_weights_file_reader():
     initial_states_file = open("state_weights.txt", "rt")
@@ -52,7 +53,6 @@ def states_action_states_weights_file_reader():
         temp_list = lines[i].split(" ")
         output.append([temp_list[0].strip("\""), temp_list[1].strip("\""), temp_list[2].strip("\""), int(temp_list[3])])
         sum_of_weights += int(temp_list[3])
-        print(i)
         i += 1
     print("the file is parsed and normalization started")
     default_weight = default_weight / sum_of_weights
@@ -69,7 +69,6 @@ def states_action_states_weights_file_reader():
             j += 1
 
         probabilities.append(current_line[3] / down)
-        print(i)
         i += 1
 
     i = 0
@@ -162,25 +161,25 @@ def output_file_generator(input_states):
 
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
-print("initial states are read")
+
 states_action_states_default_weight, states_action_states_and_probabilities = states_action_states_weights_file_reader()
-print("states action states are read")
+
 states_observations_default_weight, states_observations_and_probabilities = states_observation_weights_file_reader()
-print("states observations are read")
+
 observations_actions_pairs = observation_actions_file_reader()
-print("observation actions are read")
 
 
 
 
-print("Executing Viterbi algorithm...")
+
+
 
 
 
 
 
 # Viterbi algorithm is implemented here
-states = []
+alphas_list = []
 first_state_probabilities = []
 first_observation = observations_actions_pairs[0][0]
 i = 0
@@ -200,92 +199,125 @@ while i < len(initial_states_and_probabilities):
     first_state_probabilities.append([current_state, alpha])
     i += 1
 
-prob_list = []
+
 i = 0
 while i < len(first_state_probabilities):
-    prob_list.append(first_state_probabilities[i][1])
-    i += 1
-maximum = max(prob_list)
-alpha = 0
-i = 0
-while i < len(first_state_probabilities):
-    if first_state_probabilities[i][1] == maximum:
-        alpha = maximum
-        states.append(first_state_probabilities[i][0])
-        break
+    alphas_list.append([first_state_probabilities[i][0], first_state_probabilities[i][1], []])
     i += 1
 
-print("first_states probabilities: " + str(first_state_probabilities))
 
+
+
+previous_probabilities_list = first_state_probabilities
 
 
 
 i = 1
 while i < len(observations_actions_pairs):
-    last_state = states[(len(states) - 1)]
+    # print("previous_probabilities_list: " + str(previous_probabilities_list))
     current_action = observations_actions_pairs[i - 1][1]
     current_observation = observations_actions_pairs[i][0]
-    states_final_probs = []
+    alphas_list_copy = copy.deepcopy(alphas_list)
     j = 0
     while j < len(initial_states_and_probabilities):
-        current_state_element = initial_states_and_probabilities[j][0]
-        state_action_state_exist = False
-        k = 0
-        while k < len(states_action_states_and_probabilities):
-            if states_action_states_and_probabilities[k][0] == last_state and states_action_states_and_probabilities[k][1] == current_action and states_action_states_and_probabilities[k][2] == current_state_element:
-                state_action_state_exist = True
-                temp_alpha = alpha * states_action_states_and_probabilities[k][3]
-                break
-            k += 1
-        if not state_action_state_exist:
-            temp_alpha = alpha * states_action_states_default_weight
-
+        current_state = initial_states_and_probabilities[j][0]
         observation_exist = False
         k = 0
         while k < len(states_observations_and_probabilities):
-            if states_observations_and_probabilities[k][0] == current_state_element and states_observations_and_probabilities[k][1] == current_observation:
+            if states_observations_and_probabilities[k][0] == current_state and states_observations_and_probabilities[k][1] == current_observation:
                 observation_exist = True
-                temp_alpha = temp_alpha * states_observations_and_probabilities[k][2]
+                theta = states_observations_and_probabilities[k][2]
                 break
             k += 1
         if not observation_exist:
-            temp_alpha = temp_alpha * states_observations_default_weight
+            theta = states_observations_default_weight
 
-        states_final_probs.append([current_state_element, temp_alpha])
+        temp_list = []
+        k = 0
+        while k < len(previous_probabilities_list):
+            previous_state = previous_probabilities_list[k][0]
+            state_action_exist = False
+            h = 0
+            while h < len(states_action_states_and_probabilities):
+                if states_action_states_and_probabilities[h][0] == previous_state and states_action_states_and_probabilities[h][1] == current_action and states_action_states_and_probabilities[h][2] == current_state:
+                    state_action_exist = True
+                    action_probability = states_action_states_and_probabilities[h][3]
+                    break
+                h += 1
+            if not state_action_exist:
+                action_probability = states_action_states_default_weight
+
+            current_alpha = previous_probabilities_list[k][1] * action_probability * theta
+            temp_list.append([previous_probabilities_list[k][0], current_alpha])
+            k += 1
+
+        probs = []
+        k = 0
+        while k < len(temp_list):
+            probs.append(temp_list[k][1])
+            k += 1
+        maximum = max(probs)
+
+        if i == 1:
+            k = 0
+            while k < len(temp_list):
+                if temp_list[k][1] == maximum:
+                    alphas_list[j][1] = maximum
+                    chosen_state = temp_list[k][0]
+                    alphas_list[j][2].append(chosen_state)
+                    break
+                k += 1
+
+        else:
+            k = 0
+            while k < len(temp_list):
+                if temp_list[k][1] == maximum:
+                    alphas_list[j][1] = maximum
+                    chosen_state = temp_list[k][0]
+                    alphas_list[j][2] = copy.deepcopy(alphas_list_copy[k][2])
+                    alphas_list[j][2].append(chosen_state)
+                    break
+                k += 1
+
+
+
+
+
+
         j += 1
 
-    prob_list = []
     j = 0
-    while j < len(states_final_probs):
-        prob_list.append(states_final_probs[j][1])
+    while j < len(previous_probabilities_list):
+        previous_probabilities_list[j][1] = alphas_list[j][1]
         j += 1
-    maximum = max(prob_list)
-    j = 0
-    while j < len(states_final_probs):
-        if states_final_probs[j][1] == maximum:
-            alpha = maximum
-            states.append(states_final_probs[j][0])
-            print("chosen alpha: " + str(alpha))
-            print("chosen state: " + str(states_final_probs[j][0]))
-
-
-            break
-        j += 1
-    print("states final_probs: " + str(states_final_probs))
-    print("================================================================")
-
-
+    print(i)
+    print("alphas_list: " + str(alphas_list))
+    print("=====================================================")
 
     i += 1
 
-output_file_generator(states)
 
+probs = []
+i = 0
+while i < len(alphas_list):
+    probs.append(alphas_list[i][1])
+    i += 1
+maximum = max(probs)
+i = 0
+while i < len(alphas_list):
+    if alphas_list[i][1] == maximum:
+        alphas_list[i][2].append(alphas_list[i][0])
+        # print(alphas_list[i])
+        output_file_generator(alphas_list[i][2])
+        break
+    i += 1
+print("======================\n\n")
+print("alpha_list: " + str(alphas_list))
+print("=============================")
 
 print(states_action_states_and_probabilities)
-
+print("==================")
 print(states_observations_and_probabilities)
-
-
 
 
 
