@@ -54,6 +54,32 @@ def states_action_states_weights_file_reader():
         probabilities.append(-1)
         i += 1
     output_dictionary = {}
+    reverse_output_dictionary = {}
+    check_list = []
+    i = 1
+    while i <= number_of_triples:
+        check_list.append(0)
+        i += 1
+    i = 0
+    while i < len(output):
+        if check_list[i] == 0:
+            current_line = output[i]
+            list_of_js = []
+            j = 0
+            while j < len(output):
+                if output[j][2] == current_line[2] and output[j][1] == current_line[1]:
+                    list_of_js.append(j)
+                j += 1
+
+            reverse_output_dictionary[current_line[2] + current_line[1]] = list_of_js
+            k = 0
+            while k < len(list_of_js):
+                s = list_of_js[k]
+                check_list[s] = 1
+                k += 1
+
+        i += 1
+
     i = 0
     while i < len(output):
         if probabilities[i] == -1:
@@ -80,7 +106,7 @@ def states_action_states_weights_file_reader():
         output[i][3] = probabilities[i]
         i += 1
 
-    return default_weight, output, output_dictionary
+    return default_weight, output, output_dictionary, reverse_output_dictionary
 
 
 # This function reads information from states_observation_weights.txt
@@ -195,7 +221,7 @@ def maximum_finder(input_list):
 
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
-states_action_states_default_weight, states_action_states_and_probabilities, states_action_dictionary = states_action_states_weights_file_reader()
+states_action_states_default_weight, states_action_states_and_probabilities, states_action_dictionary, reverse_states_action_dictionary = states_action_states_weights_file_reader()
 states_observations_default_weight, states_observations_and_probabilities, states_observations_dictionary = states_observation_weights_file_reader()
 observations_actions_pairs = observation_actions_file_reader()
 
@@ -252,7 +278,12 @@ while i < len(observations_actions_pairs):
         while k < len(previous_probabilities_list):
             previous_state = previous_probabilities_list[k][0]
             state_action_exist = False
-            list_of_indexes = states_action_dictionary[previous_state + current_action]
+            forward_list = states_action_dictionary[previous_state + current_action]
+            reverse_list = reverse_states_action_dictionary[current_state + current_action]
+            if len(forward_list) >= len(reverse_list):
+                list_of_indexes = reverse_list
+            else:
+                list_of_indexes = forward_list
             s = 0
             while s < len(list_of_indexes):
                 h = list_of_indexes[s]
