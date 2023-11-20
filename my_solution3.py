@@ -180,6 +180,19 @@ def output_file_generator(input_states):
     output_file.close()
 
 
+# This function finds the maximum element in the input list and its corresponding index
+def maximum_finder(input_list):
+    output_maximum = input_list[0]
+    output_index = 0
+    i = 1
+    while i < len(input_list):
+        if input_list[i] > output_maximum:
+            output_maximum = input_list[i]
+            output_index = i
+        i += 1
+    return output_maximum, output_index
+
+
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
 states_action_states_default_weight, states_action_states_and_probabilities, states_action_dictionary = states_action_states_weights_file_reader()
@@ -194,7 +207,6 @@ i = 0
 while i < len(initial_states_and_probabilities):
     current_state = initial_states_and_probabilities[i][0]
     observation_exist = False
-
     list_of_indexes = states_observations_dictionary[current_state]
     h = 0
     while h < len(list_of_indexes):
@@ -234,7 +246,8 @@ while i < len(observations_actions_pairs):
             theta = states_observations_default_weight
 
         temp_list = []
-        probs = []
+        maximum_current_alpha = -1
+        maximum_element_index = -1
         k = 0
         while k < len(previous_probabilities_list):
             previous_state = previous_probabilities_list[k][0]
@@ -254,30 +267,21 @@ while i < len(observations_actions_pairs):
 
             current_alpha = previous_probabilities_list[k][1] * action_probability * theta
             temp_list.append([previous_probabilities_list[k][0], current_alpha])
-            probs.append(current_alpha)
+            if current_alpha > maximum_current_alpha:
+                maximum_current_alpha = current_alpha
+                maximum_element_index = k
+
             k += 1
 
-        maximum = max(probs)
         if i == 1:
-            k = 0
-            while k < len(temp_list):
-                if temp_list[k][1] == maximum:
-                    alphas_list[j][1] = maximum
-                    chosen_state = temp_list[k][0]
-                    alphas_list[j][2].append(chosen_state)
-                    break
-                k += 1
+            alphas_list[j][1] = maximum_current_alpha
+            alphas_list[j][2].append(temp_list[maximum_element_index][0])
 
         else:
-            k = 0
-            while k < len(temp_list):
-                if temp_list[k][1] == maximum:
-                    alphas_list[j][1] = maximum
-                    chosen_state = temp_list[k][0]
-                    alphas_list[j][2] = copy.deepcopy(alphas_list_copy[k][2])
-                    alphas_list[j][2].append(chosen_state)
-                    break
-                k += 1
+            alphas_list[j][1] = maximum_current_alpha
+            alphas_list[j][2] = copy.deepcopy(alphas_list_copy[maximum_element_index][2])
+            alphas_list[j][2].append(temp_list[maximum_element_index][0])
+
         j += 1
 
     j = 0
