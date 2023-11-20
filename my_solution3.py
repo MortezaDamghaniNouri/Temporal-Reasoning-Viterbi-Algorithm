@@ -71,7 +71,30 @@ def states_action_states_weights_file_reader():
             while k < len(list_of_js):
                 s = list_of_js[k]
                 probabilities[s] = output[s][3] / down
-                output_dictionary[output[s][0] + output[s][1] + output[s][2]] = probabilities[s]
+                if output[s][0] == "" or output[s][1] == "" or output[s][2] == "":
+                    if output[s][0] == "" and output[s][1] != "" and output[s][2] != "":
+                        output_dictionary["9625" + output[s][1] + output[s][2]] = probabilities[s]
+
+                    if output[s][0] != "" and output[s][1] == "" and output[s][2] != "":
+                        output_dictionary[output[s][0] + "9625" + output[s][2]] = probabilities[s]
+
+                    if output[s][0] != "" and output[s][1] != "" and output[s][2] == "":
+                        output_dictionary[output[s][0] + output[s][1] + "9625"] = probabilities[s]
+
+                    if output[s][0] == "" and output[s][1] == "" and output[s][2] != "":
+                        output_dictionary["9625" + "9625" + output[s][2]] = probabilities[s]
+
+                    if output[s][0] == "" and output[s][1] != "" and output[s][2] == "":
+                        output_dictionary["9625" + output[s][1] + "9625"] = probabilities[s]
+
+                    if output[s][0] != "" and output[s][1] == "" and output[s][2] == "":
+                        output_dictionary[output[s][0] + "9625" + "9625"] = probabilities[s]
+
+                    if output[s][0] == "" and output[s][1] == "" and output[s][2] == "":
+                        output_dictionary["9625" + "9625" + "9625"] = probabilities[s]
+                else:
+                    output_dictionary[output[s][0] + output[s][1] + output[s][2]] = probabilities[s]
+
                 k += 1
 
         i += 1
@@ -127,7 +150,15 @@ def states_observation_weights_file_reader():
             while k < len(list_of_js):
                 s = list_of_js[k]
                 probabilities[s] = output[s][2] / down
-                output_dictionary[output[s][0] + output[s][1]] = probabilities[s]
+                if output[s][0] == "" or output[s][1] == "":
+                    if output[s][0] == "" and output[s][1] != "":
+                        output_dictionary["9625" + output[s][1]] = probabilities[s]
+                    if output[s][0] != "" and output[s][1] == "":
+                        output_dictionary[output[s][0] + "9625"] = probabilities[s]
+                    if output[s][0] == "" and output[s][1] == "":
+                        output_dictionary["9625" + "9625"] = probabilities[s]
+                else:
+                    output_dictionary[output[s][0] + output[s][1]] = probabilities[s]
                 k += 1
         i += 1
 
@@ -196,6 +227,10 @@ first_observation = observations_actions_pairs[0][0]
 i = 0
 while i < len(initial_states_and_probabilities):
     current_state = initial_states_and_probabilities[i][0]
+
+
+    print("current state: " + str(current_state))
+    print("first observation: " + str(first_observation))
     result = states_observations_dictionary[current_state + first_observation]
     if result != None:
         alpha = initial_states_and_probabilities[i][1] * result
