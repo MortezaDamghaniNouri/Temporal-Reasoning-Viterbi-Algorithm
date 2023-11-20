@@ -227,11 +227,16 @@ first_observation = observations_actions_pairs[0][0]
 i = 0
 while i < len(initial_states_and_probabilities):
     current_state = initial_states_and_probabilities[i][0]
+    if current_state == "" or first_observation == "":
+        if current_state == "" and first_observation != "":
+            result = states_observations_dictionary.get("9625" + first_observation)
+        if current_state != "" and first_observation == "":
+            result = states_observations_dictionary.get(current_state + "9625")
+        if current_state == "" and first_observation == "":
+            result = states_observations_dictionary.get("9625" + "9625")
+    else:
+        result = states_observations_dictionary.get(current_state + first_observation)
 
-
-    print("current state: " + str(current_state))
-    print("first observation: " + str(first_observation))
-    result = states_observations_dictionary[current_state + first_observation]
     if result != None:
         alpha = initial_states_and_probabilities[i][1] * result
     else:
@@ -249,7 +254,16 @@ while i < len(observations_actions_pairs):
     j = 0
     while j < len(initial_states_and_probabilities):
         current_state = initial_states_and_probabilities[j][0]
-        result = states_observations_dictionary[current_state + current_observation]
+        if current_state == "" or current_observation == "":
+            if current_state == "" and current_observation != "":
+                result = states_observations_dictionary.get("9625" + current_observation)
+            if current_state != "" and current_observation == "":
+                result = states_observations_dictionary.get(current_state + "9625")
+            if current_state == "" and current_observation == "":
+                result = states_observations_dictionary.get("9625" + "9625")
+        else:
+            result = states_observations_dictionary.get(current_state + current_observation)
+
         if result != None:
             theta = result
         else:
@@ -261,7 +275,31 @@ while i < len(observations_actions_pairs):
         k = 0
         while k < len(previous_probabilities_list):
             previous_state = previous_probabilities_list[k][0]
-            result = states_action_dictionary[previous_state + current_action + current_state]
+            if previous_state == "" or current_action == "" or current_state == "":
+                if previous_state == "" and current_action != "" and current_state != "":
+                    result = states_action_dictionary.get("9625" + current_action + current_state)
+
+                if previous_state != "" and current_action == "" and current_state != "":
+                    result = states_action_dictionary.get(previous_state + "9625" + current_state)
+
+                if previous_state != "" and current_action != "" and current_state == "":
+                    result = states_action_dictionary.get(previous_state + current_action + "9625")
+
+                if previous_state == "" and current_action == "" and current_state != "":
+                    result = states_action_dictionary.get("9625" + "9625" + current_state)
+
+                if previous_state == "" and current_action != "" and current_state == "":
+                    result = states_action_dictionary.get("9625" + current_action + "9625")
+
+                if previous_state != "" and current_action == "" and current_state == "":
+                    result = states_action_dictionary.get(previous_state + "9625" + "9625")
+
+                if previous_state == "" and current_action == "" and current_state == "":
+                    result = states_action_dictionary.get("9625" + "9625" + "9625")
+
+            else:
+                result = states_action_dictionary.get(previous_state + current_action + current_state)
+
             if result != None:
                 action_probability = result
             else:
