@@ -296,14 +296,10 @@ i = 0
 while i < len(alphas_list):
     probs.append(alphas_list[i][1])
     i += 1
-maximum = max(probs)
-i = 0
-while i < len(alphas_list):
-    if alphas_list[i][1] == maximum:
-        alphas_list[i][2].append(alphas_list[i][0])
-        output_file_generator(alphas_list[i][2])
-        break
-    i += 1
+maximum, index_of_maximum = maximum_finder(probs)
+alphas_list[index_of_maximum][2].append(alphas_list[index_of_maximum][0])
+output_file_generator(alphas_list[index_of_maximum][2])
+
 
 
 
