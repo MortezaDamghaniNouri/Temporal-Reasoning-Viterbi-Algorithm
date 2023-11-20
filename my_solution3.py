@@ -140,6 +140,33 @@ def states_observation_weights_file_reader():
         i += 1
 
     output_dictionary = {}
+    reverse_output_dictionary = {}
+    check_list = []
+    i = 0
+    while i < number_of_pairs:
+        check_list.append(0)
+        i += 1
+
+    i = 0
+    while i < len(output):
+        if check_list[i] == 0:
+            current_line = output[i]
+            list_of_js = []
+            j = 0
+            while j < len(output):
+                if current_line[1] == output[j][1]:
+                    list_of_js.append(j)
+                j += 1
+
+            reverse_output_dictionary[current_line[1]] = list_of_js
+            k = 0
+            while k < len(list_of_js):
+                s = list_of_js[k]
+                check_list[s] = 1
+                k += 1
+
+        i += 1
+
     i = 0
     while i < len(output):
         if probabilities[i] == -1:
@@ -167,7 +194,7 @@ def states_observation_weights_file_reader():
         output[i][2] = probabilities[i]
         i += 1
 
-    return default_weight, output, output_dictionary
+    return default_weight, output, output_dictionary, reverse_output_dictionary
 
 
 # This function reads information from observation_actions.txt
@@ -222,7 +249,7 @@ def maximum_finder(input_list):
 # main part of the code starts here
 initial_states_and_probabilities = states_weights_file_reader()
 states_action_states_default_weight, states_action_states_and_probabilities, states_action_dictionary, reverse_states_action_dictionary = states_action_states_weights_file_reader()
-states_observations_default_weight, states_observations_and_probabilities, states_observations_dictionary = states_observation_weights_file_reader()
+states_observations_default_weight, states_observations_and_probabilities, states_observations_dictionary, reverse_states_observations_dictionary = states_observation_weights_file_reader()
 observations_actions_pairs = observation_actions_file_reader()
 
 # Viterbi algorithm is implemented here
@@ -233,7 +260,12 @@ i = 0
 while i < len(initial_states_and_probabilities):
     current_state = initial_states_and_probabilities[i][0]
     observation_exist = False
-    list_of_indexes = states_observations_dictionary[current_state]
+    f_list = states_observations_dictionary[current_state]
+    b_list = reverse_states_observations_dictionary[first_observation]
+    if len(f_list) >= len(b_list):
+        list_of_indexes = b_list
+    else:
+        list_of_indexes = f_list
     h = 0
     while h < len(list_of_indexes):
         j = list_of_indexes[h]
@@ -258,7 +290,12 @@ while i < len(observations_actions_pairs):
     while j < len(initial_states_and_probabilities):
         current_state = initial_states_and_probabilities[j][0]
         observation_exist = False
-        list_of_observations_indexes = states_observations_dictionary[current_state]
+        f_list = states_observations_dictionary[current_state]
+        b_list = reverse_states_observations_dictionary[current_observation]
+        if len(f_list) >= len(b_list):
+            list_of_observations_indexes = b_list
+        else:
+            list_of_observations_indexes = f_list
         t = 0
         while t < len(list_of_observations_indexes):
             k = list_of_observations_indexes[t]
